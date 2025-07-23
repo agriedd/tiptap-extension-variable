@@ -8,12 +8,12 @@ export const VariableList = (props: Readonly<{
 }>) => {
 	const [selectedIndex, setSelectedIndex] = useState(0)
 	const [items, setItems] = useState([
-		"List 1",
-		"List 2"
+		{label: "List 1", value: "{{ list.pertama }}"},
+		{label: "List 2", value: "{{ list.kedua }}"},
 	])
 	const itemsFiltered = useMemo(()=>{
 		return items
-			.filter(item => item.toLowerCase().startsWith(props.query.toLowerCase()))
+			.filter(item => item.label.toLowerCase().startsWith(props.query.trim().toLowerCase()))
 			.slice(0, 5) ?? []
 	}, [props.query, items])
 
@@ -21,7 +21,7 @@ export const VariableList = (props: Readonly<{
 		const item = itemsFiltered[index]
 
 		if (item) {
-			props.command({ id: item })
+			props.command({ id: item.value, label: item.label })
 		}
 	}
 
@@ -71,7 +71,7 @@ export const VariableList = (props: Readonly<{
 						key={index}
 						onClick={() => selectItem(index)}
 					>
-						{item}
+						{item.label}
 					</button>
 				))
 			) : (

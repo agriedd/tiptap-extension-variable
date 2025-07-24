@@ -7,6 +7,8 @@ import { Suggestion } from '../suggestion/suggestion'
 
 import { getSuggestionOptions } from './utils/get-default-suggestion-attributes'
 import { Plugin } from '@tiptap/pm/state'
+import { Popover, PopoverOptions } from '../suggestion/popover'
+import { getPopoverOptions } from './utils/get-default-popover-attributes'
 
 // See `addAttributes` below
 export interface MentionNodeAttrs {
@@ -97,9 +99,16 @@ export interface MentionOptions<SuggestionItem = any, Attrs extends Record<strin
 	 * @example { char: '@', pluginKey: MentionPluginKey, command: ({ editor, range, props }) => { ... } }
 	 */
 	suggestion: Omit<SuggestionOptions<SuggestionItem, Attrs>, 'editor'>
+	popover: Omit<PopoverOptions<SuggestionItem, Attrs>, 'editor'>
 }
 
 interface GetSuggestionsOptions {
+	editor?: Editor
+	options: MentionOptions
+	name: string
+}
+
+interface GetPopoversOptions {
 	editor?: Editor
 	options: MentionOptions
 	name: string
@@ -121,6 +130,18 @@ function getSuggestions(options: GetSuggestionsOptions) {
 				extensionName: options.name,
 				char: suggestion.char,
 				allowSpaces: suggestion.allowSpaces,
+			}),
+	)
+}
+
+function getPopovers(options: GetPopoversOptions) {
+	return [options.options.popover].map(
+		popover =>
+			getPopoverOptions({
+				// @ts-ignore `editor` can be `undefined` when converting the document to HTML with the HTML utility
+				editor: options.editor,
+				overridePopoverOptions: popover,
+				extensionName: options.name,
 			}),
 	)
 }
@@ -176,6 +197,7 @@ export const Mention = Node.create<MentionOptions>({
 			},
 			suggestions: [],
 			suggestion: {},
+			popover: {},
 		}
 	},
 
@@ -340,7 +362,10 @@ export const Mention = Node.create<MentionOptions>({
 
 	addProseMirrorPlugins() {
 		// Create a plugin for each suggestion configuration
-		return [...getSuggestions(this).map(Suggestion)]
+		return [
+			...getSuggestions(this).map(Suggestion),
+			...getPopovers(this).map(Popover),
+		]
 	},
 })
 

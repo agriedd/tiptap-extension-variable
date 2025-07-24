@@ -3,6 +3,7 @@ import './App.css'
 import { EditorContent, useEditor } from '@tiptap/react'
 import { Mention } from './lib/variable/variable'
 import suggestion from './VariableSuggestions'
+import popover from './VariablePopover'
 import StarterKit from '@tiptap/starter-kit'
 
 function App() {
@@ -75,6 +76,7 @@ function App() {
       // }),
       Mention.configure({
         suggestion,
+        popover,
         // renderHTML(props) {
         //   return []
         // },

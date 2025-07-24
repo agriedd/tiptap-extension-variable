@@ -1,7 +1,7 @@
 
 import React, { KeyboardEvent, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 
-export const VariableList = (props: Readonly<{
+export const VariableInfo = (props: Readonly<{
 	query: string,
 	command: (e: any)=>void,
 	ref: any
@@ -61,22 +61,8 @@ export const VariableList = (props: Readonly<{
 	}))
 
 	return (
-		<div className="dropdown-menu rounded-lg flex gap-1 flex-col p-1 bg-white">
-			{itemsFiltered.length ? (
-				itemsFiltered.map((item, index) => (
-					<button
-						className={
-							index === selectedIndex ? 'bg-slate-500 text-white' : ''
-						}
-						key={index}
-						onClick={() => selectItem(index)}
-					>
-						{item.label}
-					</button>
-				))
-			) : (
-				<div className="item">No result</div>
-			)}
+		<div className="dropdown-menu rounded-lg flex gap-1 flex-col p-1 bg-white max-w-sm w-full">
+			Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores, optio praesentium corporis cumque sequi qui adipisci neque consequatur dolorem! Dolorem suscipit ipsa iure architecto odit asperiores repellendus perspiciatis ducimus debitis.
 		</div>
 	)
 }

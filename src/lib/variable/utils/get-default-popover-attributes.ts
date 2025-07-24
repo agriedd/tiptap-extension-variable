@@ -1,53 +1,46 @@
 import type { Editor } from '@tiptap/core'
 import { PluginKey } from '@tiptap/pm/state'
-import type { SuggestionOptions } from '@tiptap/suggestion'
+import type { PopoverOptions } from '../../suggestion/popover'
 
 /**
- * Arguments for the `getSuggestionOptions` function
- * @see getSuggestionOptions
+ * Arguments for the `getPopoverOptions` function
+ * @see getPopoverOptions
  */
-export interface GetSuggestionOptionsOptions {
+export interface GetPopoverOptions {
   /**
    * The Tiptap editor instance.
    */
   editor: Editor
   /**
-   * The suggestion options configuration provided to the
+   * The popover options configuration provided to the
    * `Mention` extension.
    */
-  overrideSuggestionOptions: Omit<SuggestionOptions, 'editor'>
+  overridePopoverOptions: Omit<PopoverOptions, 'editor'>
   /**
    * The name of the Mention extension
    */
   extensionName: string
-  /**
-   * The character that triggers the suggestion.
-   * @default '@'
-   */
-  char?: string
 }
 
 /**
- * Returns the suggestion options for a trigger of the Mention extension. These
- * options are used to create a `Suggestion` ProseMirror plugin. Each plugin lets
+ * Returns the popover options for a trigger of the Mention extension. These
+ * options are used to create a `Popover` ProseMirror plugin. Each plugin lets
  * you define a different trigger that opens the Mention menu. For example,
  * you can define a `@` trigger to mention users and a `#` trigger to mention
  * tags.
  *
- * @param param0 The configured options for the suggestion
+ * @param param0 The configured options for the popover
  * @returns
  */
-export function getSuggestionOptions({
+export function getPopoverOptions({
   editor: tiptapEditor,
-  overrideSuggestionOptions,
+  overridePopoverOptions,
   extensionName,
-  char = '@',
-}: GetSuggestionOptionsOptions): SuggestionOptions {
+}: GetPopoverOptions): PopoverOptions {
   const pluginKey = new PluginKey()
 
   return {
     editor: tiptapEditor,
-    char,
     pluginKey,
     command: ({ editor, range, props }: { editor: any; range: any; props: any }) => {
       // increase range.to by one when the next node is of type "text"
@@ -65,7 +58,7 @@ export function getSuggestionOptions({
         .insertContentAt(range, [
           {
             type: extensionName,
-            attrs: { ...props, mentionSuggestionChar: char },
+            attrs: { ...props, },
           },
           {
             type: 'text',
@@ -85,6 +78,6 @@ export function getSuggestionOptions({
 
       return allow
     },
-    ...overrideSuggestionOptions,
+    ...overridePopoverOptions,
   }
 }

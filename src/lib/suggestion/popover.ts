@@ -4,12 +4,12 @@ import { Plugin, PluginKey } from '@tiptap/pm/state'
 import type { EditorView } from '@tiptap/pm/view'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 
-import { findSuggestionMatch as defaultFindSuggestionMatch } from './findSuggestionMatch'
+// import { findSuggestionMatch as defaultFindSuggestionMatch } from './findSuggestionMatch'
 
-export interface SuggestionOptions<I = any, TSelected = any> {
+export interface PopoverOptions<I = any, TSelected = any> {
 	/**
-	 * The plugin key for the suggestion plugin.
-	 * @default 'suggestion'
+	 * The plugin key for the popover plugin.
+	 * @default 'popover'
 	 * @example 'mention'
 	 */
 	pluginKey?: PluginKey
@@ -21,52 +21,11 @@ export interface SuggestionOptions<I = any, TSelected = any> {
 	editor: Editor
 
 	/**
-	 * The character that triggers the suggestion.
-	 * @default '@'
-	 * @example '#'
-	 */
-	char?: string
-
-	/**
-	 * Allow spaces in the suggestion query. Not compatible with `allowToIncludeChar`. Will be disabled if `allowToIncludeChar` is set to `true`.
-	 * @default false
-	 * @example true
-	 */
-	allowSpaces?: boolean
-
-	/**
-	 * Allow the character to be included in the suggestion query. Not compatible with `allowSpaces`.
-	 * @default false
-	 */
-	allowToIncludeChar?: boolean
-
-	/**
-	 * Allow prefixes in the suggestion query.
-	 * @default [' ']
-	 * @example [' ', '@']
-	 */
-	allowedPrefixes?: string[] | null
-
-	/**
-	 * Only match suggestions at the start of the line.
-	 * @default false
-	 * @example true
-	 */
-	startOfLine?: boolean
-
-	/**
 	 * The tag name of the decoration node.
 	 * @default 'span'
 	 * @example 'div'
 	 */
 	decorationTag?: string
-
-	/**
-	 * The class name of the decoration node.
-	 * @default 'suggestion'
-	 * @example 'mention'
-	 */
-	decorationClass?: string
 
 	/**
 	 * Creates a decoration with the provided content.
@@ -83,76 +42,57 @@ export interface SuggestionOptions<I = any, TSelected = any> {
 	decorationEmptyClass?: string
 
 	/**
-	 * A function that is called when a suggestion is selected.
+	 * The class name of the decoration node.
+	 * @default 'popover'
+	 * @example 'mention'
+	 */
+	decorationClass?: string
+
+	/**
+	 * A function that is called when a node is selected.
 	 * @param props The props object.
 	 * @param props.editor The editor instance.
-	 * @param props.range The range of the suggestion.
-	 * @param props.props The props of the selected suggestion.
+	 * @param props.range The range of the selection.
+	 * @param props.props The props of the selected target node.
 	 * @returns void
 	 * @example ({ editor, range, props }) => { props.command(props.props) }
 	 */
 	command?: (props: { editor: Editor; range: Range; props: TSelected }) => void
 
 	/**
-	 * A function that returns the suggestion items in form of an array.
-	 * @param props The props object.
-	 * @param props.editor The editor instance.
-	 * @param props.query The current suggestion query.
-	 * @returns An array of suggestion items.
-	 * @example ({ editor, query }) => [{ id: 1, label: 'John Doe' }]
-	 */
-	items?: (props: { query: string; editor: Editor }) => I[] | Promise<I[]>
-
-	/**
-	 * The render function for the suggestion.
+	 * The render function for the popover.
 	 * @returns An object with render functions.
 	 */
 	render?: () => {
-		onBeforeStart?: (props: SuggestionProps<I, TSelected>) => void
-		onStart?: (props: SuggestionProps<I, TSelected>) => void
-		onBeforeUpdate?: (props: SuggestionProps<I, TSelected>) => void
-		onUpdate?: (props: SuggestionProps<I, TSelected>) => void
-		onExit?: (props: SuggestionProps<I, TSelected>) => void
-		onKeyDown?: (props: SuggestionKeyDownProps) => boolean
+		onBeforeStart?: (props: PopoverProps<I, TSelected>) => void
+		onStart?: (props: PopoverProps<I, TSelected>) => void
+		onBeforeUpdate?: (props: PopoverProps<I, TSelected>) => void
+		onUpdate?: (props: PopoverProps<I, TSelected>) => void
+		onExit?: (props: PopoverProps<I, TSelected>) => void
+		onKeyDown?: (props: PopoverKeyDownProps) => boolean
 	}
 
 	/**
-	 * A function that returns a boolean to indicate if the suggestion should be active.
+	 * A function that returns a boolean to indicate if the popover should be active.
 	 * @param props The props object.
 	 * @returns {boolean}
 	 */
-	allow?: (props: { editor: Editor; state: EditorState; range: Range; isActive?: boolean }) => boolean
-	findSuggestionMatch?: typeof defaultFindSuggestionMatch
+	allow?: (props: { editor: Editor; range: Range; state: EditorState; isActive?: boolean }) => boolean
 }
 
-export interface SuggestionProps<I = any, TSelected = any> {
+export interface PopoverProps<I = any, TSelected = any> {
 	/**
 	 * The editor instance.
 	 */
 	editor: Editor
 
 	/**
-	 * The range of the suggestion.
+	 * The range of the target node.
 	 */
 	range: Range
 
 	/**
-	 * The current suggestion query.
-	 */
-	query: string
-
-	/**
-	 * The current suggestion text.
-	 */
-	text: string
-
-	/**
-	 * The suggestion items array.
-	 */
-	items: I[]
-
-	/**
-	 * A function that is called when a suggestion is selected.
+	 * A function that is called when a node target is selected.
 	 * @param props The props object.
 	 * @returns void
 	 */
@@ -172,37 +112,29 @@ export interface SuggestionProps<I = any, TSelected = any> {
 	clientRect?: (() => DOMRect | null) | null
 }
 
-export interface SuggestionKeyDownProps {
+export interface PopoverKeyDownProps {
 	view: EditorView
 	event: KeyboardEvent
 	range: Range
 }
 
-export const SuggestionPluginKey = new PluginKey('suggestion')
+export const PopoverPluginKey = new PluginKey('popover')
 
 /**
- * This utility allows you to create suggestions.
- * @see https://tiptap.dev/api/utilities/suggestion
+ * This utility allows you to create popovers.
  */
-export function Suggestion<I = any, TSelected = any>({
-	pluginKey = SuggestionPluginKey,
+export function Popover<I = any, TSelected = any>({
+	pluginKey = PopoverPluginKey,
 	editor,
-	char = '@',
-	allowSpaces = true,
-	allowToIncludeChar = false,
-	allowedPrefixes = [' '],
-	startOfLine = false,
 	decorationTag = 'span',
-	decorationClass = 'suggestion',
+	decorationClass = 'popover',
 	decorationContent = '',
 	decorationEmptyClass = 'is-empty',
 	command = () => null,
-	items = () => [],
 	render = () => ({}),
 	allow = () => true,
-	findSuggestionMatch = defaultFindSuggestionMatch,
-}: SuggestionOptions<I, TSelected>) {
-	let props: SuggestionProps<I, TSelected> | undefined
+}: PopoverOptions<I, TSelected>) {
+	let props: PopoverProps<I, TSelected> | undefined
 	const renderer = render?.()
 
 	const plugin: Plugin<any> = new Plugin({
@@ -225,7 +157,7 @@ export function Suggestion<I = any, TSelected = any>({
 					const handleChange = changed || moved
 					const handleExit = stopped || (moved && changed)
 
-					// Cancel when suggestion isn't active
+					// Cancel when popover isn't active
 					if (!handleStart && !handleChange && !handleExit) {
 						return
 					}
@@ -236,9 +168,6 @@ export function Suggestion<I = any, TSelected = any>({
 					props = {
 						editor,
 						range: state.range,
-						query: state.query,
-						text: state.text,
-						items: [],
 						command: commandProps => {
 							return command({
 								editor,
@@ -266,13 +195,6 @@ export function Suggestion<I = any, TSelected = any>({
 
 					if (handleChange) {
 						renderer?.onBeforeUpdate?.(props)
-					}
-
-					if (handleChange || handleStart) {
-						props.items = await items({
-							editor,
-							query: state.query,
-						})
 					}
 
 					if (handleExit) {
@@ -305,8 +227,6 @@ export function Suggestion<I = any, TSelected = any>({
 					active: boolean
 					selected: boolean
 					range: Range
-					query: null | string
-					text: null | string
 					composing: boolean
 					decorationId?: string | null
 				} = {
@@ -316,8 +236,6 @@ export function Suggestion<I = any, TSelected = any>({
 						from: 0,
 						to: 0,
 					},
-					query: null,
-					text: null,
 					composing: false,
 				}
 
@@ -326,6 +244,7 @@ export function Suggestion<I = any, TSelected = any>({
 
 			// Apply changes to the plugin state from a view transaction.
 			apply(transaction, prev, _oldState, state) {
+				console.log("🚀 ~ apply ~ state:", state)
 				const { isEditable, isActive } = editor
 				const { composing } = editor.view
 				const { selection } = transaction
@@ -337,43 +256,30 @@ export function Suggestion<I = any, TSelected = any>({
 				// We can only be suggesting if the view is editable, and:
 				//   * there is no selection, or
 				//   * a composition is active (see: https://github.com/ueberdosis/tiptap/issues/1449)
-				if (isEditable && (empty || editor.view.composing)) {
-					console.log("bisa diedit dan selection kosong");
+				// jika editable dan adalah node
 
-					// Reset active state if we just left the previous suggestion range
-					if ((from < prev.range.from || from > prev.range.to) && !composing && !prev.composing) {
-						console.log("Range terlalu rendah");
+				// @ts-ignore g ada node
+				if (typeof state.selection.node !== 'undefined') {
 
-						next.active = false
-					}
-
-					// Try to match against where our cursor currently is
-					const match = findSuggestionMatch({
-						char,
-						allowSpaces: allowSpaces,
-						allowToIncludeChar: allowToIncludeChar,
-						allowedPrefixes: allowedPrefixes,
-						startOfLine: startOfLine,
-						$position: selection.$from,
-					})
 					const decorationId = `id_${Math.floor(Math.random() * 0xffffffff)}`
-					console.log("🚀 ~ apply ~ match:", match)
 
 					// If we found a match, update the current state to show it
 					if (
-						match &&
 						allow({
 							editor,
 							state,
-							range: match.range,
+							range: {
+								from,
+								to
+							},
 							isActive: prev.active,
 						})
 					) {
 						next.active = true
 						next.decorationId = prev.decorationId ? prev.decorationId : decorationId
-						next.range = match.range
-						next.query = match.query
-						next.text = match.text
+						next.range = {
+							from, to
+						}
 					} else {
 						next.active = false
 					}
@@ -385,8 +291,6 @@ export function Suggestion<I = any, TSelected = any>({
 				if (!next.active) {
 					next.decorationId = null
 					next.range = { from: 0, to: 0 }
-					next.query = null
-					next.text = null
 				}
 
 				return next
@@ -394,7 +298,7 @@ export function Suggestion<I = any, TSelected = any>({
 		},
 
 		props: {
-			// Call the keydown hook if suggestion is active.
+			// Call the keydown hook if popover is active.
 			handleKeyDown(view, event) {
 				const { active, range } = plugin.getState(view.state)
 
@@ -405,7 +309,7 @@ export function Suggestion<I = any, TSelected = any>({
 				return renderer?.onKeyDown?.({ view, event, range }) || false
 			},
 
-			// Setup decorator on the currently active suggestion.
+			// Setup decorator on the currently active popover.
 			decorations(state) {
 
 				const { active, range, decorationId, query } = plugin.getState(state)

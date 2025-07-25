@@ -1,81 +1,85 @@
 {
-  "name": "@agriedd/tiptap-extension-variable",
-  "description": "Variable extension for tiptap",
-  "version": "0.1.1",
-  "homepage": "https://agriedd.github.io/tiptap-extension-variable",
-  "keywords": [
-    "tag",
-    "merge tag",
-    "variable",
-    "tiptap",
-    "tiptap extension"
-  ],
-  "license": "MIT",
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./src/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+    "name": "@agriedd/tiptap-extension-variable",
+    "description": "Variable extension for tiptap",
+    "version": "0.1.2",
+    "homepage": "https://agriedd.github.io/tiptap-extension-variable",
+    "keywords": [
+        "tag",
+        "merge tag",
+        "variable",
+        "tiptap",
+        "tiptap extension"
+    ],
+    "license": "MIT",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./src/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com"
+    },
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "umd": "dist/index.umd.js",
+    "types": "src/index.d.ts",
+    "files": [
+        "src",
+        "dist"
+    ],
+    "devDependencies": {
+        "@eslint/js": "^9.30.1",
+        "@rollup/plugin-babel": "^6.0.4",
+        "@rollup/plugin-commonjs": "^25.0.7",
+        "@rollup/plugin-node-resolve": "^15.2.3",
+        "@tailwindcss/vite": "^4.1.11",
+        "@tiptap/core": "^3.0.7",
+        "@tiptap/pm": "^3.0.7",
+        "@tiptap/suggestion": "^3.0.7",
+        "@types/node": "^24.1.0",
+        "@types/react": "^19.1.8",
+        "@types/react-dom": "^19.1.6",
+        "@vitejs/plugin-react": "^4.6.0",
+        "@vitejs/plugin-react-oxc": "^0.3.0",
+        "autoprefixer": "^10.4.21",
+        "eslint": "^9.30.1",
+        "eslint-plugin-react-hooks": "^5.2.0",
+        "eslint-plugin-react-refresh": "^0.4.20",
+        "globals": "^16.3.0",
+        "postcss": "^8.5.6",
+        "postcss-preset-env": "^10.2.4",
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0",
+        "rollup-plugin-visualizer": "^6.0.3",
+        "sass": "^1.89.2",
+        "tailwindcss": "^4.1.11",
+        "terser": "^5.43.1",
+        "vite": "npm:rolldown-vite@latest",
+        "vite-plugin-dts": "^4.5.4",
+        "vite-plugin-inspect": "^11.3.0"
+    },
+    "peerDependencies": {
+        "@tiptap/core": "^3.0.0",
+        "@tiptap/pm": "^3.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/agriedd/tiptap-extension-variable"
+    },
+    "scripts": {
+        "clean": "rm -rf dist",
+        "dev": "vite example/main.jsx",
+        "build": "vite build",
+        "lint": "eslint .",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@tiptap/extension-mention": "^3.0.7",
+        "@tiptap/react": "^3.0.7",
+        "@tiptap/starter-kit": "^3.0.7",
+        "tippy.js": "^6.3.7"
     }
-  },
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "umd": "dist/index.umd.js",
-  "types": "src/index.d.ts",
-  "files": [
-    "src",
-    "dist"
-  ],
-  "devDependencies": {
-    "@eslint/js": "^9.30.1",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-commonjs": "^25.0.7",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@tailwindcss/vite": "^4.1.11",
-    "@tiptap/core": "^3.0.7",
-    "@tiptap/pm": "^3.0.7",
-    "@tiptap/suggestion": "^3.0.7",
-    "@types/node": "^24.1.0",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
-    "@vitejs/plugin-react": "^4.6.0",
-    "@vitejs/plugin-react-oxc": "^0.3.0",
-    "autoprefixer": "^10.4.21",
-    "eslint": "^9.30.1",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^16.3.0",
-    "postcss": "^8.5.6",
-    "postcss-preset-env": "^10.2.4",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "rollup-plugin-visualizer": "^6.0.3",
-    "sass": "^1.89.2",
-    "tailwindcss": "^4.1.11",
-    "terser": "^5.43.1",
-    "vite": "npm:rolldown-vite@latest",
-    "vite-plugin-inspect": "^11.3.0"
-  },
-  "peerDependencies": {
-    "@tiptap/core": "^3.0.0",
-    "@tiptap/pm": "^3.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/agriedd/tiptap-extension-variable"
-  },
-  "scripts": {
-    "clean": "rm -rf dist",
-    "dev": "vite example/main.jsx",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@tiptap/extension-mention": "^3.0.7",
-    "@tiptap/react": "^3.0.7",
-    "@tiptap/starter-kit": "^3.0.7",
-    "tippy.js": "^6.3.7"
-  }
 }

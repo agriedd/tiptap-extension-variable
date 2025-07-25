@@ -12,22 +12,14 @@ export default defineConfig({
     build: {
         lib: {
             entry: resolve(__dirname, 'src/index.ts'),
-            // Nama library (opsional, untuk UMD)
             name: 'Variable',
-            // Format output yang diinginkan
-            formats: ['umd', 'es', 'cjs', 'iife'], // 'es' untuk MJS, 'umd' untuk UMD, tambahkan 'cjs' untuk CommonJS jika perlu
-            // Nama file output (tanpa ekstensi)
+            formats: ['umd', 'es', 'cjs', 'iife'],
             fileName: (format) => `variable.${format}.js`,
         },
         rollupOptions: {
-            // Pastikan hanya memproses file yang diperlukan
             input: resolve(__dirname, 'src/index.ts'),
-            // external: ['@tiptap/core', '@tiptap/pm'],
             output: {
-                // Atur output directory
                 dir: 'dist',
-                // Atur format dan nama file
-                // entryFileNames: `[name].[format].js`,
                 globals: {
                     '@tiptap/core': 'tiptapCore',
                     '@tiptap/pm': 'tiptapPm',

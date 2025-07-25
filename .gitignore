@@ -1,5 +1,6 @@
 dist
 node_modules
 .turbo
+.idea
 
 .DS_Store

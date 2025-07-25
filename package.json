@@ -1,7 +1,7 @@
 {
     "name": "@agriedd/tiptap-extension-variable",
     "description": "Variable extension for tiptap",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "homepage": "https://agriedd.github.io/tiptap-extension-variable",
     "keywords": [
         "tag",

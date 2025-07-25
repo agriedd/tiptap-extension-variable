@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react-oxc'
 import tailwindcss from '@tailwindcss/vite'
 import packageJson from './package.json';
 import inspect from 'vite-plugin-inspect';
-import { visualizer } from "rollup-plugin-visualizer";
+import {visualizer} from "rollup-plugin-visualizer";
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [
@@ -34,6 +34,9 @@ export default defineConfig({
                     'prosemirror-state': 'prosemirror-state',
                     'prosemirror-view': 'prosemirror-view',
                     'prosemirror-transform': 'prosemirror-transform',
+                    '@tiptap/pm/model': '@tiptap/pm/model',
+                    '@tiptap/pm/state': '@tiptap/pm/state',
+                    '@tiptap/pm/view': '@tiptap/pm/view',
                 },
             },
             external: [

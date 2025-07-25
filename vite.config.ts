@@ -16,6 +16,7 @@ export default defineConfig({
             formats: ['umd', 'es', 'cjs', 'iife'],
             fileName: (format) => `variable.${format}.js`,
         },
+        sourcemap: true,
         rollupOptions: {
             input: resolve(__dirname, 'src/index.ts'),
             output: {

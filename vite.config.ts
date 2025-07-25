@@ -1,19 +1,22 @@
 import {defineConfig} from 'vite'
 import {resolve} from 'path';
-import react from '@vitejs/plugin-react-oxc'
+// import react from '@vitejs/plugin-react-oxc'
 // @ts-ignore unknown issue
-import tailwindcss from '@tailwindcss/vite'
+// import tailwindcss from '@tailwindcss/vite'
 import packageJson from './package.json';
 import inspect from 'vite-plugin-inspect';
+import dts from 'vite-plugin-dts';
 import {visualizer} from "rollup-plugin-visualizer";
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [
-        react(), tailwindcss(), visualizer(),
+        // react(), tailwindcss(),
+        visualizer(),
         inspect({
             build: true,
             outputDir: '.vite-inspect',
-        })
+        }),
+        dts()
     ],
     build: {
         lib: {

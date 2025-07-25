@@ -51,6 +51,7 @@
     "react-dom": "^19.1.0",
     "sass": "^1.89.2",
     "tailwindcss": "^4.1.11",
+    "terser": "^5.43.1",
     "vite": "npm:rolldown-vite@latest"
   },
   "peerDependencies": {

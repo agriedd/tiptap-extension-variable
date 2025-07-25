@@ -13,7 +13,7 @@ export default defineConfig({
         lib: {
             entry: resolve(__dirname, 'src/index.ts'),
             name: 'Variable',
-            formats: ['umd', 'es', 'cjs', 'iife'],
+            formats: ['es'],
             fileName: (format) => `variable.${format}.js`,
         },
         sourcemap: true,
@@ -29,6 +29,7 @@ export default defineConfig({
             external: Object.keys(packageJson.peerDependencies || {}),
         },
         emptyOutDir: true,
+
     },
     experimental: {
         enableNativePlugin: true,

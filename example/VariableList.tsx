@@ -8,8 +8,8 @@ export const VariableList = (props: Readonly<{
 }>) => {
 	const [selectedIndex, setSelectedIndex] = useState(0)
 	const [items, setItems] = useState([
-		{label: "List 1", value: "{{ list.pertama }}"},
-		{label: "List 2", value: "{{ list.kedua }}"},
+		{label: "List 1", value: "list.pertama"},
+		{label: "List 2", value: "list.kedua"},
 	])
 	const itemsFiltered = useMemo(()=>{
 		return items
@@ -61,12 +61,12 @@ export const VariableList = (props: Readonly<{
 	}))
 
 	return (
-		<div className="dropdown-menu rounded-lg flex gap-1 flex-col p-1 bg-white">
+		<div className="dropdown-menu rounded-lg flex gap-1 flex-col p-1 bg-white text-slate-800 min-w-[128px]">
 			{itemsFiltered.length ? (
 				itemsFiltered.map((item, index) => (
 					<button
 						className={
-							index === selectedIndex ? 'bg-slate-500 text-white' : ''
+							index === selectedIndex ? 'bg-blue-500 text-white rounded-sm px-4' : 'rounded-sm px-4'
 						}
 						key={index}
 						onClick={() => selectItem(index)}

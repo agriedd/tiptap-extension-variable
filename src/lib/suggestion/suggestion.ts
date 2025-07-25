@@ -22,10 +22,10 @@ export interface SuggestionOptions<I = any, TSelected = any> {
 
 	/**
 	 * The character that triggers the suggestion.
-	 * @default '@'
-	 * @example '#'
+	 * @default ["{{", "}}"]
+	 * @example ['{{', '}}']
 	 */
-	char?: string
+	delimiters?: [string, string]
 
 	/**
 	 * Allow spaces in the suggestion query. Not compatible with `allowToIncludeChar`. Will be disabled if `allowToIncludeChar` is set to `true`.
@@ -187,7 +187,7 @@ export const SuggestionPluginKey = new PluginKey('suggestion')
 export function Suggestion<I = any, TSelected = any>({
 	pluginKey = SuggestionPluginKey,
 	editor,
-	char = '@',
+	delimiters = ["{{", "}}"],
 	allowSpaces = true,
 	allowToIncludeChar = false,
 	allowedPrefixes = [' '],
@@ -326,10 +326,10 @@ export function Suggestion<I = any, TSelected = any>({
 
 			// Apply changes to the plugin state from a view transaction.
 			apply(transaction, prev, _oldState, state) {
-				const { isEditable, isActive } = editor
+				const { isEditable } = editor
 				const { composing } = editor.view
 				const { selection } = transaction
-				const { empty, from, to } = selection
+				const { empty, from } = selection
 				const next = { ...prev }
 
 				next.composing = composing
@@ -338,18 +338,15 @@ export function Suggestion<I = any, TSelected = any>({
 				//   * there is no selection, or
 				//   * a composition is active (see: https://github.com/ueberdosis/tiptap/issues/1449)
 				if (isEditable && (empty || editor.view.composing)) {
-					console.log("bisa diedit dan selection kosong");
 
 					// Reset active state if we just left the previous suggestion range
 					if ((from < prev.range.from || from > prev.range.to) && !composing && !prev.composing) {
-						console.log("Range terlalu rendah");
-
 						next.active = false
 					}
 
 					// Try to match against where our cursor currently is
 					const match = findSuggestionMatch({
-						char,
+						delimiters,
 						allowSpaces: allowSpaces,
 						allowToIncludeChar: allowToIncludeChar,
 						allowedPrefixes: allowedPrefixes,
@@ -357,7 +354,6 @@ export function Suggestion<I = any, TSelected = any>({
 						$position: selection.$from,
 					})
 					const decorationId = `id_${Math.floor(Math.random() * 0xffffffff)}`
-					console.log("🚀 ~ apply ~ match:", match)
 
 					// If we found a match, update the current state to show it
 					if (

@@ -4,9 +4,8 @@ import { Plugin, PluginKey } from '@tiptap/pm/state'
 import type { EditorView } from '@tiptap/pm/view'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 
-// import { findSuggestionMatch as defaultFindSuggestionMatch } from './findSuggestionMatch'
 
-export interface PopoverOptions<I = any, TSelected = any> {
+export interface PopoverOptions<TSelected = any> {
 	/**
 	 * The plugin key for the popover plugin.
 	 * @default 'popover'
@@ -50,7 +49,7 @@ export interface PopoverOptions<I = any, TSelected = any> {
 
 	/**
 	 * A function that is called when a node is selected.
-	 * @param props The props object.
+	 * @param props The prop object.
 	 * @param props.editor The editor instance.
 	 * @param props.range The range of the selection.
 	 * @param props.props The props of the selected target node.
@@ -64,23 +63,23 @@ export interface PopoverOptions<I = any, TSelected = any> {
 	 * @returns An object with render functions.
 	 */
 	render?: () => {
-		onBeforeStart?: (props: PopoverProps<I, TSelected>) => void
-		onStart?: (props: PopoverProps<I, TSelected>) => void
-		onBeforeUpdate?: (props: PopoverProps<I, TSelected>) => void
-		onUpdate?: (props: PopoverProps<I, TSelected>) => void
-		onExit?: (props: PopoverProps<I, TSelected>) => void
+		onBeforeStart?: (props: PopoverProps<TSelected>) => void
+		onStart?: (props: PopoverProps<TSelected>) => void
+		onBeforeUpdate?: (props: PopoverProps<TSelected>) => void
+		onUpdate?: (props: PopoverProps<TSelected>) => void
+		onExit?: (props: PopoverProps<TSelected>) => void
 		onKeyDown?: (props: PopoverKeyDownProps) => boolean
 	}
 
 	/**
 	 * A function that returns a boolean to indicate if the popover should be active.
-	 * @param props The props object.
+	 * @param props The prop object.
 	 * @returns {boolean}
 	 */
 	allow?: (props: { editor: Editor; range: Range; state: EditorState; isActive?: boolean }) => boolean
 }
 
-export interface PopoverProps<I = any, TSelected = any> {
+export interface PopoverProps<TSelected = any> {
 	/**
 	 * The editor instance.
 	 */
@@ -92,8 +91,18 @@ export interface PopoverProps<I = any, TSelected = any> {
 	range: Range
 
 	/**
+	 * The selected item id.
+	 */
+	id: string
+
+	/**
+	 * The selected item label.
+	 */
+	label: string
+
+	/**
 	 * A function that is called when a node target is selected.
-	 * @param props The props object.
+	 * @param props The prop object.
 	 * @returns void
 	 */
 	command: (props: TSelected) => void
@@ -123,7 +132,7 @@ export const PopoverPluginKey = new PluginKey('popover')
 /**
  * This utility allows you to create popovers.
  */
-export function Popover<I = any, TSelected = any>({
+export function Popover<TSelected = any>({
 	pluginKey = PopoverPluginKey,
 	editor,
 	decorationTag = 'span',
@@ -133,8 +142,8 @@ export function Popover<I = any, TSelected = any>({
 	command = () => null,
 	render = () => ({}),
 	allow = () => true,
-}: PopoverOptions<I, TSelected>) {
-	let props: PopoverProps<I, TSelected> | undefined
+}: PopoverOptions<TSelected>) {
+	let props: PopoverProps<TSelected> | undefined
 	const renderer = render?.()
 
 	const plugin: Plugin<any> = new Plugin({
@@ -148,10 +157,11 @@ export function Popover<I = any, TSelected = any>({
 					const next = this.key?.getState(view.state)
 
 					// See how the state changed
+
 					const moved = prev.active && next.active && prev.range.from !== next.range.from
 					const started = !prev.active && next.active
 					const stopped = prev.active && !next.active
-					const changed = !started && !stopped && prev.query !== next.query
+					const changed = !started && !stopped && next.different
 
 					const handleStart = started || (moved && changed)
 					const handleChange = changed || moved
@@ -168,6 +178,8 @@ export function Popover<I = any, TSelected = any>({
 					props = {
 						editor,
 						range: state.range,
+                        id: state.id,
+                        label: state.label,
 						command: commandProps => {
 							return command({
 								editor,
@@ -180,7 +192,7 @@ export function Popover<I = any, TSelected = any>({
 						// this can be used for building popups without a DOM node
 						clientRect: decorationNode
 							? () => {
-								// because of `items` can be asynchrounous we’ll search for the current decoration node
+								// because of `items` can be asynchronous, we’ll search for the current decoration node
 								const { decorationId } = this.key?.getState(editor.state) // eslint-disable-line
 								const currentDecorationNode = view.dom.querySelector(`[data-decoration-id="${decorationId}"]`)
 
@@ -188,6 +200,12 @@ export function Popover<I = any, TSelected = any>({
 							}
 							: null,
 					}
+
+                    if (handleChange) {
+                        renderer?.onExit?.(props)
+                        renderer?.onBeforeStart?.(props)
+						renderer?.onStart?.(props)
+                    }
 
 					if (handleStart) {
 						renderer?.onBeforeStart?.(props)
@@ -226,11 +244,17 @@ export function Popover<I = any, TSelected = any>({
 				const state: {
 					active: boolean
 					selected: boolean
+                    different: boolean
+                    id: string
+                    label: string
 					range: Range
 					composing: boolean
 					decorationId?: string | null
 				} = {
 					active: false,
+                    different: false,
+                    id: "",
+                    label: "",
 					selected: false,
 					range: {
 						from: 0,
@@ -244,11 +268,10 @@ export function Popover<I = any, TSelected = any>({
 
 			// Apply changes to the plugin state from a view transaction.
 			apply(transaction, prev, _oldState, state) {
-				console.log("🚀 ~ apply ~ state:", state)
-				const { isEditable, isActive } = editor
+				// const { isEditable, isActive } = editor
 				const { composing } = editor.view
 				const { selection } = transaction
-				const { empty, from, to } = selection
+				const { from, to } = selection
 				const next = { ...prev }
 
 				next.composing = composing
@@ -256,7 +279,6 @@ export function Popover<I = any, TSelected = any>({
 				// We can only be suggesting if the view is editable, and:
 				//   * there is no selection, or
 				//   * a composition is active (see: https://github.com/ueberdosis/tiptap/issues/1449)
-				// jika editable dan adalah node
 
 				// @ts-ignore g ada node
 				if (typeof state.selection.node !== 'undefined') {
@@ -276,6 +298,11 @@ export function Popover<I = any, TSelected = any>({
 						})
 					) {
 						next.active = true
+						next.different = next.id !== prev.id
+                        // @ts-ignore idk
+						next.id = state.selection?.node?.attrs?.id ?? ""
+                        // @ts-ignore idk
+						next.label = state.selection?.node?.attrs?.label ?? ""
 						next.decorationId = prev.decorationId ? prev.decorationId : decorationId
 						next.range = {
 							from, to
@@ -291,6 +318,7 @@ export function Popover<I = any, TSelected = any>({
 				if (!next.active) {
 					next.decorationId = null
 					next.range = { from: 0, to: 0 }
+                    next.id = ""
 				}
 
 				return next

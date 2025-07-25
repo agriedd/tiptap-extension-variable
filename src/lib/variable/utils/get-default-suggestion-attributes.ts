@@ -1,6 +1,6 @@
 import type { Editor } from '@tiptap/core'
 import { PluginKey } from '@tiptap/pm/state'
-import type { SuggestionOptions } from '@tiptap/suggestion'
+import type { SuggestionOptions } from '../../suggestion/suggestion'
 
 /**
  * Arguments for the `getSuggestionOptions` function
@@ -22,9 +22,9 @@ export interface GetSuggestionOptionsOptions {
   extensionName: string
   /**
    * The character that triggers the suggestion.
-   * @default '@'
+   * @default ['{{', '}}']
    */
-  char?: string
+  delimiters?: [string, string]
 }
 
 /**
@@ -41,13 +41,13 @@ export function getSuggestionOptions({
   editor: tiptapEditor,
   overrideSuggestionOptions,
   extensionName,
-  char = '@',
+  delimiters = ['{{', '}}'],
 }: GetSuggestionOptionsOptions): SuggestionOptions {
   const pluginKey = new PluginKey()
 
   return {
     editor: tiptapEditor,
-    char,
+    delimiters,
     pluginKey,
     command: ({ editor, range, props }: { editor: any; range: any; props: any }) => {
       // increase range.to by one when the next node is of type "text"
@@ -65,7 +65,7 @@ export function getSuggestionOptions({
         .insertContentAt(range, [
           {
             type: extensionName,
-            attrs: { ...props, mentionSuggestionChar: char },
+            attrs: { ...props, delimiterOpen: delimiters[0], delimiterClose: delimiters[0] },
           },
           {
             type: 'text',

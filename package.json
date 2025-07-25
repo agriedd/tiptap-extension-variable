@@ -1,10 +1,12 @@
 {
-  "name": "@talqui-oss/tiptap-extension-variable",
-  "description": "Variable extension for tiptap by Talqui",
-  "version": "0.0.6",
-  "homepage": "https://talqui.chat",
+  "name": "@agriedd/tiptap-extension-variable",
+  "description": "Variable extension for tiptap",
+  "version": "0.1.0",
+  "homepage": "https://agriedd.github.io/tiptap-extension-variable",
   "keywords": [
-    "talqui",
+    "tag",
+    "merge tag",
+    "variable",
     "tiptap",
     "tiptap extension"
   ],
@@ -34,6 +36,7 @@
     "@tiptap/core": "^3.0.7",
     "@tiptap/pm": "^3.0.7",
     "@tiptap/suggestion": "^3.0.7",
+    "@types/node": "^24.1.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
@@ -52,17 +55,15 @@
   },
   "peerDependencies": {
     "@tiptap/core": "^3.0.0",
-    "@tiptap/pm": "^3.0.0",
-    "@tiptap/extension-mention": "^3.0.7",
-    "tippy.js": "^6.0.0"
+    "@tiptap/pm": "^3.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/talqui-oss/tiptap-extension-variable"
+    "url": "https://github.com/agriedd/tiptap-extension-variable"
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "dev": "vite",
+    "dev": "vite example/main.jsx",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

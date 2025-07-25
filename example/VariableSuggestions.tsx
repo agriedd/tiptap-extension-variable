@@ -1,7 +1,7 @@
 import { computePosition, flip, shift } from '@floating-ui/dom'
 import { Editor, posToDOMRect, ReactRenderer } from '@tiptap/react'
 
-import { VariableInfo } from './VariableInfo'
+import { VariableList } from './VariableList'
 
 const updatePosition = (editor: Editor, element: HTMLElement) => {
 	const virtualElement = {
@@ -21,12 +21,27 @@ const updatePosition = (editor: Editor, element: HTMLElement) => {
 }
 
 export default {
+	// items: ({ query }: {query: string}) => {
+	// 	return []
+	// },
+
+	delimiters: ['{*', '*}'],
+	// allow: (props: any)=>{
+	// 	console.log("🚀 ~ props:", props)
+	// 	// if(!props.isActive && props.state.selection.node?.type?.name === 'mention'){
+	// 	// 	return true
+	// 	// }
+	// 	// if(props.isActive){
+	// 		return true
+	// 	// }
+	// 	// return false;
+	// },
 	render: () => {
 		let component : ReactRenderer<HTMLElement>|null = null
 
 		return {
 			onStart: (props: any) => {
-				component = new ReactRenderer(VariableInfo, {
+				component = new ReactRenderer(VariableList, {
 					props,
 					editor: props.editor,
 				})
@@ -72,4 +87,7 @@ export default {
 			},
 		}
 	},
+} as {
+    delimiters: [string, string],
+    render: () => any
 }

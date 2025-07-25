@@ -1,371 +1,364 @@
-import type { Editor } from '@tiptap/core'
-import { mergeAttributes, Node } from '@tiptap/core'
-import type { DOMOutputSpec } from '@tiptap/pm/model'
-import { Node as ProseMirrorNode } from '@tiptap/pm/model'
-import type { SuggestionOptions } from '../suggestion/suggestion'
-import { Suggestion } from '../suggestion/suggestion'
+import type {Editor} from '@tiptap/core'
+import {mergeAttributes, Node} from '@tiptap/core'
+import type {DOMOutputSpec} from '@tiptap/pm/model'
+import {Node as ProseMirrorNode} from '@tiptap/pm/model'
+import type {SuggestionOptions} from '../suggestion/suggestion'
+import {Suggestion} from '../suggestion/suggestion'
 
-import { getSuggestionOptions } from './utils/get-default-suggestion-attributes'
-import { Plugin } from '@tiptap/pm/state'
-import { Popover, PopoverOptions } from '../suggestion/popover'
-import { getPopoverOptions } from './utils/get-default-popover-attributes'
+import {getSuggestionOptions} from './utils/get-default-suggestion-attributes'
+import {Popover, PopoverOptions} from '../suggestion/popover'
+import {getPopoverOptions} from './utils/get-default-popover-attributes'
 
 // See `addAttributes` below
-export interface MentionNodeAttrs {
-	/**
-	 * The identifier for the selected item that was mentioned, stored as a `data-id`
-	 * attribute.
-	 */
-	id: string | null
-	/**
-	 * The label to be rendered by the editor as the displayed text for this mentioned
-	 * item, if provided. Stored as a `data-label` attribute. See `renderLabel`.
-	 */
-	label?: string | null
-	/**
-	 * The character that triggers the suggestion, stored as
-	 * `data-mention-suggestion-char` attribute.
-	 */
-	mentionSuggestionChar?: string
+export interface VariableNodeAttrs {
+    /**
+     * The identifier for the selected item that was mentioned, stored as a `data-id`
+     * attribute.
+     */
+    id: string | null
+    /**
+     * The label to be rendered by the editor as the displayed text for this mentioned
+     * item, if provided. Stored as a `data-label` attribute. See `renderLabel`.
+     */
+    label?: string | null
+    /**
+     * The character that triggers the suggestion, stored as
+     * `data-variable-suggestion-char` attribute.
+     */
+    delimiterOpen?: string
+    delimiterClose?: string
 }
 
-export interface MentionOptions<SuggestionItem = any, Attrs extends Record<string, any> = MentionNodeAttrs> {
-	/**
-	 * The HTML attributes for a mention node.
-	 * @default {}
-	 * @example { class: 'foo' }
-	 */
-	HTMLAttributes: Record<string, any>
+export interface VariableOptions<SuggestionItem = any, Attrs extends Record<string, any> = VariableNodeAttrs> {
+    /**
+     * The HTML attributes for a variable node.
+     * @default {}
+     * @example { class: 'foo' }
+     */
+    HTMLAttributes: Record<string, any>
 
-	/**
-	 * A function to render the label of a mention.
-	 * @deprecated use renderText and renderHTML instead
-	 * @param props The render props
-	 * @returns The label
-	 * @example ({ options, node }) => `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`
-	 */
-	renderLabel?: (props: {
-		options: MentionOptions<SuggestionItem, Attrs>
-		node: ProseMirrorNode
-		suggestion: SuggestionOptions | null
-	}) => string
+    /**
+     * A function to render the label of a variable.
+     * @deprecated use renderText and renderHTML instead
+     * @param props The render props
+     * @returns The label
+     * @example ({ options, node }) => `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`
+     */
+    renderLabel?: (props: {
+        options: VariableOptions<SuggestionItem, Attrs>
+        node: ProseMirrorNode
+        suggestion: SuggestionOptions | null
+    }) => string
 
-	/**
-	 * A function to render the text of a mention.
-	 * @param props The render props
-	 * @returns The text
-	 * @example ({ options, node }) => `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`
-	 */
-	renderText: (props: {
-		options: MentionOptions<SuggestionItem, Attrs>
-		node: ProseMirrorNode
-		suggestion: SuggestionOptions | null
-	}) => string
+    /**
+     * A function to render the text of a variable.
+     * @param props The render props
+     * @returns The text
+     * @example ({ options, node }) => `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`
+     */
+    renderText: (props: {
+        options: VariableOptions<SuggestionItem, Attrs>
+        node: ProseMirrorNode
+        suggestion: SuggestionOptions | null
+    }) => string
 
-	/**
-	 * A function to render the HTML of a mention.
-	 * @param props The render props
-	 * @returns The HTML as a ProseMirror DOM Output Spec
-	 * @example ({ options, node }) => ['span', { 'data-type': 'mention' }, `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`]
-	 */
-	renderHTML: (props: {
-		options: MentionOptions<SuggestionItem, Attrs>
-		node: ProseMirrorNode
-		suggestion: SuggestionOptions | null
-	}) => DOMOutputSpec
+    /**
+     * A function to render the HTML of a variable.
+     * @param props The render props
+     * @returns The HTML as a ProseMirror DOM Output Spec
+     * @example ({ options, node }) => ['span', { 'data-type': 'variable' }, `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`]
+     */
+    renderHTML: (props: {
+        options: VariableOptions<SuggestionItem, Attrs>
+        node: ProseMirrorNode
+        suggestion: SuggestionOptions | null
+    }) => DOMOutputSpec
 
-	/**
-	 * Whether to delete the trigger character with backspace.
-	 * @default false
-	 */
-	deleteTriggerWithBackspace: boolean
+    /**
+     * Whether to delete the trigger character with backspace.
+     * @default false
+     */
+    deleteTriggerWithBackspace: boolean
 
-	/**
-	 * The suggestion options, when you want to support multiple triggers.
-	 *
-	 * With this parameter, you can define multiple types of mention. For example, you can use the `@` character
-	 * to mention users and the `#` character to mention tags.
-	 *
-	 * @default [{ char: '@', pluginKey: MentionPluginKey }]
-	 * @example [{ char: '@', pluginKey: MentionPluginKey }, { char: '#', pluginKey: new PluginKey('hashtag') }]
-	 */
-	suggestions: Array<Omit<SuggestionOptions<SuggestionItem, Attrs>, 'editor'>>
+    /**
+     * The suggestion options, when you want to support multiple triggers.
+     *
+     * @default [{ delimiters: ['{{', '}}'], pluginKey: VariablePluginKey }]
+     * @example [{ delimiters: ['{{', '}}'], pluginKey: VariablePluginKey }, { delimiters: ['{{', '}}'], pluginKey: new PluginKey('hashtag') }]
+     */
+    suggestions: Array<Omit<SuggestionOptions<SuggestionItem, Attrs>, 'editor'>>
 
-	/**
-	 * The suggestion options, when you want to support only one trigger. To support multiple triggers, use the
-	 * `suggestions` parameter instead.
-	 *
-	 * @default {}
-	 * @example { char: '@', pluginKey: MentionPluginKey, command: ({ editor, range, props }) => { ... } }
-	 */
-	suggestion: Omit<SuggestionOptions<SuggestionItem, Attrs>, 'editor'>
-	popover: Omit<PopoverOptions<SuggestionItem, Attrs>, 'editor'>
+    /**
+     * The suggestion options, when you want to support only one trigger. To support multiple triggers, use the
+     * `suggestions` parameter instead.
+     *
+     * @default {}
+     * @example { delimiters: ['{{', '}}'], pluginKey: VariablePluginKey, command: ({ editor, range, props }) => { ... } }
+     */
+    suggestion: Omit<SuggestionOptions<SuggestionItem, Attrs>, 'editor'>
+    popover: Omit<PopoverOptions<Attrs>, 'editor'>
 }
 
 interface GetSuggestionsOptions {
-	editor?: Editor
-	options: MentionOptions
-	name: string
+    editor?: Editor
+    options: VariableOptions
+    name: string
 }
 
 interface GetPopoversOptions {
-	editor?: Editor
-	options: MentionOptions
-	name: string
+    editor?: Editor
+    options: VariableOptions
+    name: string
 }
 
 /**
- * Returns the suggestions for the mention extension.
+ * Returns the suggestions for the variable extension.
  *
  * @param options The extension options
  * @returns the suggestions
  */
 function getSuggestions(options: GetSuggestionsOptions) {
-	return (options.options.suggestions.length ? options.options.suggestions : [options.options.suggestion]).map(
-		suggestion =>
-			getSuggestionOptions({
-				// @ts-ignore `editor` can be `undefined` when converting the document to HTML with the HTML utility
-				editor: options.editor,
-				overrideSuggestionOptions: suggestion,
-				extensionName: options.name,
-				char: suggestion.char,
-				allowSpaces: suggestion.allowSpaces,
-			}),
-	)
+    return (options.options.suggestions.length ? options.options.suggestions : [options.options.suggestion]).map(
+        suggestion =>
+            getSuggestionOptions({
+                // @ts-ignore `editor` can be `undefined` when converting the document to HTML with the HTML utility
+                editor: options.editor,
+                overrideSuggestionOptions: suggestion,
+                extensionName: options.name,
+                delimiters: suggestion.delimiters,
+                allowSpaces: suggestion.allowSpaces,
+            }),
+    )
 }
 
 function getPopovers(options: GetPopoversOptions) {
-	return [options.options.popover].map(
-		popover =>
-			getPopoverOptions({
-				// @ts-ignore `editor` can be `undefined` when converting the document to HTML with the HTML utility
-				editor: options.editor,
-				overridePopoverOptions: popover,
-				extensionName: options.name,
-			}),
-	)
+    return [options.options.popover].map(
+        popover =>
+            getPopoverOptions({
+                // @ts-ignore `editor` can be `undefined` when converting the document to HTML with the HTML utility
+                editor: options.editor,
+                overridePopoverOptions: popover,
+                extensionName: options.name,
+            }),
+    )
 }
 
 /**
- * Returns the suggestion options of the mention that has a given character trigger. If not
+ * Returns the suggestion options of the variable that has a given character trigger. If not
  * found, it returns the first suggestion.
  *
  * @param options The extension options
- * @param char The character that triggers the mention
+ * @param delimiters The character that triggers the variable
  * @returns The suggestion options
  */
-function getSuggestionFromChar(options: GetSuggestionsOptions, char: string) {
-	const suggestions = getSuggestions(options)
+function getSuggestionFromChar(options: GetSuggestionsOptions, delimiters: [string, string]) {
+    const suggestions = getSuggestions(options)
 
-	const suggestion = suggestions.find(s => s.char === char)
-	if (suggestion) {
-		return suggestion
-	}
+    const suggestion = suggestions.find(s => (s.delimiters ?? [])[0] === delimiters[0] && (s.delimiters ?? [])[1] === delimiters[1])
 
-	if (suggestions.length) {
-		return suggestions[0]
-	}
+    if (suggestion) {
+        return suggestion
+    }
 
-	return null
+    if (suggestions.length) {
+        return suggestions[0]
+    }
+
+    return null
 }
 
 /**
- * This extension allows you to insert mentions into the editor.
- * @see https://www.tiptap.dev/api/extensions/mention
+ * This extension allows you to insert variables into the editor.
  */
-export const Mention = Node.create<MentionOptions>({
-	name: 'mention',
+export const Variable = Node.create<VariableOptions>({
+    name: 'variable',
 
-	priority: 101,
+    priority: 101,
 
-	addOptions() {
-		return {
-			HTMLAttributes: {
-				// TODO: remove after
-				'class': 'underline decoration-2 decoration-pink-500'
-			},
-			renderText({ node, suggestion }) {
-				return `${suggestion?.char ?? '@'}${node.attrs.label ?? node.attrs.id}`
-			},
-			deleteTriggerWithBackspace: false,
-			renderHTML({ options, node, suggestion }) {
-				return [
-					'span',
-					mergeAttributes(this.HTMLAttributes, options.HTMLAttributes),
-					`${suggestion?.char ?? '@'}${node.attrs.label ?? node.attrs.id}`,
-				]
-			},
-			suggestions: [],
-			suggestion: {},
-			popover: {},
-		}
-	},
+    addOptions() {
+        return {
+            HTMLAttributes: {
+                'class': 'variable-label'
+            },
+            renderText({node, suggestion}) {
+                const delimiterOpen = (suggestion?.delimiters ?? [])[0] ?? "{{";
+                const delimiterClose = (suggestion?.delimiters ?? [])[1] ?? "}}";
+                return `${delimiterOpen}${node.attrs.id ?? node.attrs.label}${delimiterClose}`
+            },
+            deleteTriggerWithBackspace: false,
+            renderHTML({options, node, suggestion}) {
 
-	group: 'inline',
+                const fragment = document.createDocumentFragment();
 
-	inline: true,
+                const spanDelimiterOpen = document.createElement('span');
+                spanDelimiterOpen.className = 'variable-label-delimiter delimiter-open';
+                spanDelimiterOpen.textContent = (suggestion?.delimiters ?? [])[0] ?? "{{";
+                fragment.appendChild(spanDelimiterOpen);
 
-	selectable: true,
+                const spanContent = document.createElement('span');
+                spanContent.className = 'variable-label-text';
+                spanContent.textContent = node.attrs.id ?? node.attrs.label;
+                fragment.appendChild(spanContent);
 
-	atom: true,
+                const spanDelimiterClose = document.createElement('span');
+                spanDelimiterClose.className = 'variable-label-delimiter delimiter-close';
+                spanDelimiterClose.textContent = (suggestion?.delimiters ?? [])[1] ?? "}}";
+                fragment.appendChild(spanDelimiterClose);
 
-	addAttributes() {
-		return {
-			id: {
-				default: null,
-				parseHTML: element => element.getAttribute('data-id'),
-				renderHTML: attributes => {
-					if (!attributes.id) {
-						return {}
-					}
+                return [
+                    'span',
+                    mergeAttributes(this.HTMLAttributes, options.HTMLAttributes),
+                    fragment
+                ]
+            },
+            suggestions: [],
+            suggestion: {},
+            popover: {},
+        }
+    },
 
-					return {
-						'data-id': attributes.id,
-					}
-				},
-			},
+    group: 'inline',
 
-			label: {
-				default: null,
-				parseHTML: element => element.getAttribute('data-label'),
-				renderHTML: attributes => {
-					if (!attributes.label) {
-						return {}
-					}
+    inline: true,
 
-					return {
-						'data-label': attributes.label,
-					}
-				},
-			},
+    selectable: true,
 
-			// When there are multiple types of mentions, this attribute helps distinguish them
-			mentionSuggestionChar: {
-				default: '@',
-				parseHTML: element => element.getAttribute('data-mention-suggestion-char'),
-				renderHTML: attributes => {
-					return {
-						'data-mention-suggestion-char': attributes.mentionSuggestionChar,
-					}
-				},
-			},
+    atom: true,
 
-			selected: {
-				default: false,
-				parseHTML: element => element.getAttribute('data-selected'),
-				renderHTML: attributes => {
-					// if(!attributes.label){
-					// }
+    addAttributes() {
+        return {
+            id: {
+                default: null,
+                parseHTML: element => element.getAttribute('data-id'),
+                renderHTML: attributes => {
+                    if (!attributes.id) {
+                        return {}
+                    }
 
-					return {
-						'data-selected': attributes.selected
-					}
-				},
-			}
-		}
-	},
+                    return {
+                        'data-id': attributes.id,
+                    }
+                },
+            },
 
-	parseHTML() {
-		return [
-			{
-				tag: `span[data-type="${this.name}"]`,
-			},
-		]
-	},
+            label: {
+                default: null,
+                parseHTML: element => element.getAttribute('data-label'),
+                renderHTML: attributes => {
+                    if (!attributes.label) {
+                        return {}
+                    }
 
-	renderHTML({ node, HTMLAttributes }) {
-		const suggestion = getSuggestionFromChar(this, node.attrs.mentionSuggestionChar)
+                    return {
+                        'data-label': attributes.label,
+                    }
+                },
+            },
+        }
+    },
 
-		if (this.options.renderLabel !== undefined) {
-			console.warn('renderLabel is deprecated use renderText and renderHTML instead')
-			return [
-				'span',
-				mergeAttributes({ 'data-type': this.name }, this.options.HTMLAttributes, HTMLAttributes),
-				this.options.renderLabel({
-					options: this.options,
-					node,
-					suggestion,
-				}),
-			]
-		}
-		const mergedOptions = { ...this.options }
+    parseHTML() {
+        return [
+            {
+                tag: `span[data-type="${this.name}"]`,
+            },
+        ]
+    },
 
-		mergedOptions.HTMLAttributes = mergeAttributes(
-			{ 'data-type': this.name },
-			this.options.HTMLAttributes,
-			HTMLAttributes,
-		)
+    renderHTML({node, HTMLAttributes}) {
+        const suggestion = getSuggestionFromChar(this, [node.attrs.delimiterOpen, node.attrs.delimiterClose])
 
-		const html = this.options.renderHTML({
-			options: mergedOptions,
-			node,
-			suggestion,
-		})
+        // if (this.options.renderLabel !== undefined) {
+        // 	console.warn('renderLabel is deprecated use renderText and renderHTML instead')
+        // 	return [
+        // 		'span',
+        // 		mergeAttributes({ 'data-type': this.name }, this.options.HTMLAttributes, HTMLAttributes),
+        // 		this.options.renderLabel({
+        // 			options: this.options,
+        // 			node,
+        // 			suggestion,
+        // 		}),
+        // 	]
+        // }
 
-		if (typeof html === 'string') {
-			return ['span', mergeAttributes({ 'data-type': this.name }, this.options.HTMLAttributes, HTMLAttributes), html]
-		}
-		return html
-	},
+        const mergedOptions = {...this.options}
 
-	renderText({ node }) {
-		const args = {
-			options: this.options,
-			node,
-			suggestion: getSuggestionFromChar(this, node.attrs.mentionSuggestionChar),
-		}
-		if (this.options.renderLabel !== undefined) {
-			console.warn('renderLabel is deprecated use renderText and renderHTML instead')
-			return this.options.renderLabel(args)
-		}
+        mergedOptions.HTMLAttributes = mergeAttributes(
+            {'data-type': this.name},
+            this.options.HTMLAttributes,
+            HTMLAttributes,
+        )
 
-		return this.options.renderText(args)
-	},
+        const html = this.options.renderHTML({
+            options: mergedOptions,
+            node,
+            suggestion,
+        })
 
-	addKeyboardShortcuts() {
-		return {
-			Backspace: () =>
-				this.editor.commands.command(({ tr, state }) => {
-					let isMention = false
-					const { selection } = state
-					const { empty, anchor } = selection
+        if (typeof html === 'string') {
+            return ['span', mergeAttributes({'data-type': this.name}, this.options.HTMLAttributes, HTMLAttributes), html]
+        }
+        return html
+    },
 
-					if (!empty) {
-						return false
-					}
+    renderText({node}) {
+        const args = {
+            options: this.options,
+            node,
+            suggestion: getSuggestionFromChar(this, [node.attrs.delimiterOpen, node.attrs.delimiterClose]),
+        }
+        // if (this.options.renderLabel !== undefined) {
+        // 	console.warn('renderLabel is deprecated use renderText and renderHTML instead')
+        // 	return this.options.renderLabel(args)
+        // }
 
-					// Store node and position for later use
-					let mentionNode = new ProseMirrorNode()
-					let mentionPos = 0
+        return this.options.renderText(args)
+    },
 
-					state.doc.nodesBetween(anchor - 1, anchor, (node, pos) => {
-						if (node.type.name === this.name) {
-							isMention = true
-							mentionNode = node
-							mentionPos = pos
-							return false
-						}
-					})
+    addKeyboardShortcuts() {
+        return {
+            Backspace: () =>
+                this.editor.commands.command(({tr, state}) => {
+                    let isMention = false
+                    const {selection} = state
+                    const {empty, anchor} = selection
 
-					if (isMention) {
-						tr.insertText(
-							this.options.deleteTriggerWithBackspace ? '' : mentionNode.attrs.mentionSuggestionChar,
-							mentionPos,
-							mentionPos + mentionNode.nodeSize,
-						)
-					}
+                    if (!empty) {
+                        return false
+                    }
 
-					return isMention
-				}),
-		}
-	},
+                    // Store node and position for later use
+                    let variableNode = new ProseMirrorNode()
+                    let variablePos = 0
 
-	addProseMirrorPlugins() {
-		// Create a plugin for each suggestion configuration
-		return [
-			...getSuggestions(this).map(Suggestion),
-			...getPopovers(this).map(Popover),
-		]
-	},
+                    state.doc.nodesBetween(anchor - 1, anchor, (node, pos) => {
+                        if (node.type.name === this.name) {
+                            isMention = true
+                            variableNode = node
+                            variablePos = pos
+                            return false
+                        }
+                    })
+
+                    if (isMention) {
+                        tr.insertText(
+                            this.options.deleteTriggerWithBackspace ? '' : variableNode.attrs.delimiterOpen,
+                            variablePos,
+                            variablePos + variableNode.nodeSize,
+                        )
+                    }
+
+                    return isMention
+                }),
+        }
+    },
+
+    addProseMirrorPlugins() {
+        // Create a plugin for each suggestion configuration
+        return [
+            ...getSuggestions(this).map(Suggestion),
+            ...getPopovers(this).map(Popover),
+        ]
+    },
 })
 

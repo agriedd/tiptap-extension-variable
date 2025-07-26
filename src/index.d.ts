@@ -1,3 +1,6 @@
-export type { Variable, VariableNodeAttrs, VariableOptions } from './lib/variable'
-export type { Suggestion, SuggestionOptions, SuggestionKeyDownProps, SuggestionPluginKey } from './lib/suggestion/suggestion'
-export type { PopoverOptions, Popover, PopoverProps, PopoverKeyDownProps } from './lib/suggestion/popover'
+export {Variable} from './lib/variable'
+export type {VariableOptions, VariableNodeAttrs} from './lib/variable'
+export type {
+    SuggestionOptions, SuggestionProps, PopoverOptions, PopoverProps,
+    PopoverKeyDownProps, SuggestionKeyDownProps, SuggestionPluginKey
+} from './lib/suggestion'
